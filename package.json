@@ -65,11 +65,19 @@
     "app-router"
   ],
   "peerDependencies": {
+    "@opennextjs/cloudflare": ">=1",
     "next": ">=15",
-    "typescript": ">=5"
+    "typescript": ">=5",
+    "wrangler": ">=4"
   },
   "peerDependenciesMeta": {
+    "@opennextjs/cloudflare": {
+      "optional": true
+    },
     "typescript": {
+      "optional": true
+    },
+    "wrangler": {
       "optional": true
     }
   },
