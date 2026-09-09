@@ -106,19 +106,24 @@ Nothing here is written per operating system. Generated route files point at
 their sources with symlinks, and the mode is probed once at runtime rather than
 chosen from the platform name.
 
-| Platform | State                                                         |
-| -------- | ------------------------------------------------------------- |
-| macOS    | Developed and tested here                                     |
-| Linux    | Same symlink path as macOS, not yet verified                  |
-| Windows  | Falls back to copying, unit tested but not yet run on Windows |
+Every release runs the test suite on all three, against the supported Node
+floor and the current release.
+
+| Platform | State                                         |
+| -------- | --------------------------------------------- |
+| macOS    | Verified in continuous integration            |
+| Linux    | Verified in continuous integration            |
+| Windows  | Verified in continuous integration, copy mode |
 
 Windows refuses to create file symlinks without Developer Mode or an elevated
 shell. The probe detects that and copies route files instead, with the watcher
-keeping them in step, so the package still works. Shared directories use
-junctions, which Windows allows without elevation.
+keeping them in step. Shared directories use junctions, which Windows allows
+without elevation.
 
-Verification on Linux and Windows is planned for a coming release. If you hit
-something on either, please open an issue:
+What the suite does not cover, on any platform, is the dev server itself:
+whether an edited route reaches it without a restart, and whether an added
+route triggers exactly one. Those are verified by hand on macOS. If you hit
+something on Linux or Windows, please open an issue:
 https://github.com/henzyd/next-multi-app/issues
 
 ## Deployment targets
