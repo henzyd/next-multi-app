@@ -1,6 +1,6 @@
 {
   "name": "next-multi-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Build several Next.js applications from one repository, sharing the route files they do not override.",
   "type": "module",
   "license": "MIT",
