@@ -82,8 +82,18 @@ stays the default, so this can be adopted one application at a time.
 
 Without an adapter you get `dev`, `build`, `start` and `typecheck`, which is all
 a Vercel or Node deployment needs. A Cloudflare adapter ships with the package
-and adds `deploy`, `preview`, `upload` and `cf-typegen`. See
-[Adapters](docs/adapters.md).
+and is off unless you set `adapter` in your config; opting in adds `deploy`,
+`preview`, `upload` and `cf-typegen`. See [Adapters](docs/adapters.md).
+
+## Platform support
+
+Route files are linked rather than copied, and the mode is probed at runtime,
+not chosen per operating system. Developed and tested on macOS. Linux takes the
+same path and is expected to behave identically, but is not yet verified.
+Windows has no file symlinks without Developer Mode, so the package falls back
+to copying; that path is unit tested and has not yet run on a Windows machine.
+Verification on both is planned for a coming release. Details in
+[Getting started](docs/getting-started.md#platform-support).
 
 ## Reach for this last
 
