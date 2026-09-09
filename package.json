@@ -4,6 +4,15 @@
   "description": "Build several Next.js applications from one repository, sharing the route files they do not override.",
   "type": "module",
   "license": "MIT",
+  "author": "henzyd",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/henzyd/next-multi-app.git"
+  },
+  "homepage": "https://github.com/henzyd/next-multi-app#readme",
+  "bugs": {
+    "url": "https://github.com/henzyd/next-multi-app/issues"
+  },
   "engines": {
     "node": ">=20.19"
   },
