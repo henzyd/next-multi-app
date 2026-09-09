@@ -8,6 +8,12 @@ deploying to Vercel never loads a Cloudflare package. Without an adapter you get
 `dev`, `build`, `start` and `typecheck`, which is all a Vercel or Node
 deployment needs.
 
+**No adapter is active by default.** The package declares no host dependency,
+and the Cloudflare adapter is inert until you set `adapter` in your config. Its
+one runtime import lives in a separate module that only a generated
+`next.config.ts` reaches, so an application that has not opted in never loads
+it.
+
 ## Cloudflare
 
 ```js

@@ -40,6 +40,9 @@ next-multi-app dev --app admin -p 4000
 npm run dev -- --app admin -p 4000
 ```
 
+Named scripts per application, each pinned to its own port, are in
+[Getting started](getting-started.md#running-several-applications).
+
 A bare `--`, which is how npm separates its own flags from yours, is dropped
 rather than forwarded. Without that, Next reads it as a project directory and
 fails.

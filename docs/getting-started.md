@@ -65,6 +65,84 @@ npm run dev -- --app admin      # a specific one
 npm run build -- --app admin
 ```
 
+## Running several applications
+
+Give each application its own script and its own port. They are separate dev
+servers, so they can run side by side.
+
+```json
+{
+  "scripts": {
+    "dev": "next-multi-app dev",
+    "dev:customer": "next-multi-app dev --app customer -p 3000",
+    "dev:admin": "next-multi-app dev --app admin -p 3001"
+  }
+}
+```
+
+```bash
+npm run dev:customer            # http://localhost:3000
+npm run dev:admin               # http://localhost:3001
+```
+
+Each application is generated into its own directory, so two dev servers never
+write over each other. Only the port has to differ.
+
+`-p` is the ordinary Next.js flag, not something this package defines.
+Everything after the action is forwarded, so the same pattern works for
+`start`:
+
+```json
+{
+  "scripts": {
+    "start:admin": "next-multi-app start --app admin -p 3001"
+  }
+}
+```
+
+## Platform support
+
+Nothing here is written per operating system. Generated route files point at
+their sources with symlinks, and the mode is probed once at runtime rather than
+chosen from the platform name.
+
+| Platform | State                                                         |
+| -------- | ------------------------------------------------------------- |
+| macOS    | Developed and tested here                                     |
+| Linux    | Same symlink path as macOS, not yet verified                  |
+| Windows  | Falls back to copying, unit tested but not yet run on Windows |
+
+Windows refuses to create file symlinks without Developer Mode or an elevated
+shell. The probe detects that and copies route files instead, with the watcher
+keeping them in step, so the package still works. Shared directories use
+junctions, which Windows allows without elevation.
+
+Verification on Linux and Windows is planned for a coming release. If you hit
+something on either, please open an issue:
+https://github.com/henzyd/next-multi-app/issues
+
+## Deployment targets
+
+Out of the box you get `dev`, `build`, `start` and `typecheck`, which is all a
+Vercel or Node deployment needs. Nothing host-specific is installed or loaded.
+
+A Cloudflare adapter ships with the package and is off unless you ask for it.
+Opt in from your config:
+
+```js
+import { defineConfig } from "next-multi-app";
+import cloudflare from "next-multi-app/cloudflare";
+
+export default defineConfig({
+  apps: { customer: { default: true }, admin: { noindex: true } },
+  adapter: cloudflare(),
+});
+```
+
+That adds `deploy`, `preview`, `upload` and `cf-typegen`, and requires
+`@opennextjs/cloudflare` and `wrangler` in your repository. See
+[Adapters](adapters.md), which also covers writing your own.
+
 ## Adopting it in an existing repository
 
 A repository with `app/` at its root keeps working untouched. It stays the
