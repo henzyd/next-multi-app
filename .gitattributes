@@ -1,0 +1,4 @@
+# Prettier is configured for LF, and it checks the working tree rather than
+# what is committed. Without this, a Windows checkout converts every file to
+# CRLF and `npm run check` fails on formatting before it reaches anything real.
+* text=auto eol=lf
