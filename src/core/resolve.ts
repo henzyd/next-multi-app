@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { isInside } from "./paths.js";
 import type { AppOptions, MultiAppConfig, ResolvedConfig } from "../types.js";
 
 const CONFIG_NAMES = ["multi-app.config.mjs", "multi-app.config.js"];
@@ -99,9 +100,21 @@ export async function loadConfig(projectRoot: string): Promise<ResolvedConfig> {
     );
   }
 
+  const outDir = raw.outDir ?? DEFAULTS.outDir;
+
+  // The generated tree is written, rewritten and cleaned here, and a
+  // .gitignore holding `*` is placed at its top. Pointed at the repository
+  // root, that one file would hide the whole repository from git.
+  if (!isInside(projectRoot, path.resolve(projectRoot, outDir))) {
+    throw new ConfigError(
+      `\`outDir\` must name a directory inside the repository, and not the ` +
+        `repository root itself. ${JSON.stringify(outDir)} resolves outside it.`
+    );
+  }
+
   return {
     appsDir: raw.appsDir ?? DEFAULTS.appsDir,
-    outDir: raw.outDir ?? DEFAULTS.outDir,
+    outDir,
     sharedDirs: raw.sharedDirs ?? [...DEFAULTS.sharedDirs],
     apps,
     adapter: raw.adapter,
