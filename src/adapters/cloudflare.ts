@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { parseJsoncObject } from "../core/jsonc.js";
 import type { Adapter, AdapterCommand, AdapterContext } from "../types.js";
 
 const OPEN_NEXT_CLI = "@opennextjs/cloudflare#../cli/index.js";
@@ -13,6 +14,33 @@ function relativeRoot(context: AdapterContext): string {
 }
 
 /**
+ * Rewrites repository-relative paths so they still resolve from the generated
+ * project, which sits below the repository root.
+ *
+ * Only string values are considered. An earlier version rewrote every \`"./\`
+ * in the file, which also caught comments and any value that merely looked
+ * like a path.
+ */
+function repoint(value: unknown, root: string): unknown {
+  if (typeof value === "string") {
+    return value.startsWith("./") ? `${root}${value.slice(1)}` : value;
+  }
+
+  if (Array.isArray(value)) return value.map((item) => repoint(item, root));
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, item]) => [
+        key,
+        repoint(item, root),
+      ])
+    );
+  }
+
+  return value;
+}
+
+/**
  * Derives the application's Worker configuration from the repository's own, so
  * compatibility dates, flags and bindings stay in one place and only the name
  * differs.
@@ -21,13 +49,23 @@ function relativeRoot(context: AdapterContext): string {
  * Every application must end up with a distinct name: without its own
  * configuration, wrangler walks up and resolves the repository's, and deploying
  * would publish over the root application.
+ *
+ * The file is parsed rather than pattern-matched. \`name\` is a legal key inside
+ * bindings too, so matching the first one in the text could rename a binding
+ * and leave the Worker sharing the repository's name, which is exactly the
+ * collision this exists to prevent. Comments do not survive the round trip;
+ * the generated file is build output, and the repository's own copy keeps them.
  */
 function wranglerConfig(context: AdapterContext): string | undefined {
   const rootConfig = path.join(context.projectRoot, "wrangler.jsonc");
   if (!existsSync(rootConfig)) return undefined;
 
-  const source = readFileSync(rootConfig, "utf8");
-  const rootName = /"name"\s*:\s*"([^"]*)"/.exec(source)?.[1];
+  const parsed = parseJsoncObject(
+    readFileSync(rootConfig, "utf8"),
+    "wrangler.jsonc"
+  );
+
+  const rootName = typeof parsed.name === "string" ? parsed.name : undefined;
   const configured = context.appOptions.deploy?.name;
 
   const name =
@@ -37,9 +75,13 @@ function wranglerConfig(context: AdapterContext): string | undefined {
         ? `${rootName}-${context.appName}`
         : context.appName;
 
-  return source
-    .replace(/("name"\s*:\s*)"[^"]*"/, `$1${JSON.stringify(name)}`)
-    .replace(/"\.\//g, `"${relativeRoot(context)}/`);
+  const config = repoint(parsed, relativeRoot(context)) as Record<
+    string,
+    unknown
+  >;
+  config.name = name;
+
+  return `${JSON.stringify(config, null, 2)}\n`;
 }
 
 export interface CloudflareAdapterOptions {

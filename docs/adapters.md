@@ -29,7 +29,9 @@ It adds the `deploy`, `preview`, `upload` and `cf-typegen` actions, and writes
 two files into each generated project:
 
 - `wrangler.jsonc`, derived from your own so compatibility dates, flags and
-  bindings stay in one place and only the Worker name differs;
+  bindings stay in one place and only the Worker name differs. Your file is
+  parsed as JSONC, so comments and trailing commas are fine; the generated copy
+  is re-serialised as plain JSON and does not carry your comments across.
 - `open-next.config.ts`, re-exporting yours.
 
 ### Worker names

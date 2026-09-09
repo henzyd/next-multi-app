@@ -101,6 +101,75 @@ describe("cloudflare adapter", () => {
     );
   });
 
+  it("takes the Worker name from the top level, not from a binding", () => {
+    // `name` is a legal key inside a binding. Matching the first one in the
+    // text renamed the binding and left the Worker sharing the repository's
+    // name, so two applications deployed over each other.
+    write(
+      "wrangler.jsonc",
+      `{
+  "durable_objects": {
+    "bindings": [{ "name": "COUNTER", "class_name": "Counter" }]
+  },
+  "name": "acme"
+}
+`
+    );
+    const config = JSON.parse(cloudflare().files(context())["wrangler.jsonc"]);
+    assert.equal(config.name, "acme-admin");
+    assert.equal(config.durable_objects.bindings[0].name, "COUNTER");
+  });
+
+  it("ignores a name written in a comment", () => {
+    write(
+      "wrangler.jsonc",
+      `{
+  // "name": "not-the-worker"
+  "name": "acme"
+}
+`
+    );
+    const config = JSON.parse(cloudflare().files(context())["wrangler.jsonc"]);
+    assert.equal(config.name, "acme-admin");
+  });
+
+  it("accepts block comments and trailing commas", () => {
+    write(
+      "wrangler.jsonc",
+      `{
+  /* the Worker */
+  "name": "acme",
+  "compatibility_date": "2026-01-01",
+}
+`
+    );
+    const config = JSON.parse(cloudflare().files(context())["wrangler.jsonc"]);
+    assert.equal(config.name, "acme-admin");
+    assert.equal(config.compatibility_date, "2026-01-01");
+  });
+
+  it("leaves a string that only looks like a path alone", () => {
+    write(
+      "wrangler.jsonc",
+      `{
+  "name": "acme",
+  "vars": { "NOTE": "see ./docs for details", "MAIN": "./worker.js" }
+}
+`
+    );
+    const config = JSON.parse(cloudflare().files(context())["wrangler.jsonc"]);
+    assert.equal(config.vars.NOTE, "see ./docs for details");
+    assert.equal(config.vars.MAIN, "../../worker.js");
+  });
+
+  it("names the file when it cannot be parsed", () => {
+    write("wrangler.jsonc", '{ "name": }');
+    assert.throws(
+      () => cloudflare().files(context()),
+      /wrangler\.jsonc could not be parsed/
+    );
+  });
+
   it("emits nothing when the repository has no Worker configuration", () => {
     const files = cloudflare().files(context());
     assert.equal(files["wrangler.jsonc"], undefined);
