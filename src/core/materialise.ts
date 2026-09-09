@@ -15,6 +15,7 @@ import {
   type LinkMode,
 } from "./link.js";
 import { applyPlan, planOverlay } from "./overlay.js";
+import { isInside } from "./paths.js";
 
 export interface MaterialiseResult {
   /** Absolute path to the generated Next.js project. */
@@ -210,6 +211,17 @@ export function materialise(
     config.adapter?.files?.(context) ?? {}
   )) {
     const destination = path.join(generatedRoot, file);
+
+    // An adapter is code the repository chose to import, so this is not a
+    // trust boundary. It is a guard against a path built by hand from an
+    // application name or an option, which would otherwise write anywhere.
+    if (!isInside(generatedRoot, destination)) {
+      throw new Error(
+        `Adapter ${config.adapter?.name ?? "unknown"} tried to write ` +
+          `${JSON.stringify(file)}, which is outside the generated project.`
+      );
+    }
+
     mkdirSync(path.dirname(destination), { recursive: true });
     writeIfChanged(destination, contents);
   }
