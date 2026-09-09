@@ -1,0 +1,72 @@
+{
+  "name": "next-multi-app",
+  "version": "0.1.0",
+  "description": "Build several Next.js applications from one repository, sharing the route files they do not override.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "bin": {
+    "next-multi-app": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js",
+      "default": "./dist/config.js"
+    },
+    "./cloudflare": {
+      "types": "./dist/adapters/cloudflare.d.ts",
+      "import": "./dist/adapters/cloudflare.js",
+      "default": "./dist/adapters/cloudflare.js"
+    },
+    "./cloudflare/next-config": {
+      "types": "./dist/adapters/cloudflare-next-config.d.ts",
+      "import": "./dist/adapters/cloudflare-next-config.js",
+      "default": "./dist/adapters/cloudflare-next-config.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test test/*.test.mjs",
+    "check": "npm run format:check && npm run typecheck && npm run build && npm run test",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "next",
+    "nextjs",
+    "monorepo",
+    "multi-app",
+    "multi-tenant",
+    "app-router"
+  ],
+  "peerDependencies": {
+    "next": ">=15",
+    "typescript": ">=5"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "prettier": "^3",
+    "typescript": "^5"
+  }
+}
