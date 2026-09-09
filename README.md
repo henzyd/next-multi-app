@@ -88,11 +88,11 @@ and is off unless you set `adapter` in your config; opting in adds `deploy`,
 ## Platform support
 
 Route files are linked rather than copied, and the mode is probed at runtime,
-not chosen per operating system. Developed and tested on macOS. Linux takes the
-same path and is expected to behave identically, but is not yet verified.
-Windows has no file symlinks without Developer Mode, so the package falls back
-to copying; that path is unit tested and has not yet run on a Windows machine.
-Verification on both is planned for a coming release. Details in
+not chosen per operating system. Linux, macOS and Windows all run the test
+suite on every change, against the supported Node floor and the current
+release. Windows has no file symlinks without Developer Mode, so it falls back
+to copying route files, and that path is covered there. Dev server behaviour is
+still verified by hand on macOS only. Details in
 [Getting started](docs/getting-started.md#platform-support).
 
 ## Reach for this last

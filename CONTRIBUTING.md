@@ -60,9 +60,12 @@ Tests use `node --test` with no framework. Cover the behaviour, not the
 implementation: a test that asserts which files were written is more useful
 than one that asserts which function was called.
 
-Platform behaviour is the weak spot. Copy mode is unit tested but has not run
-on Windows, and Linux has not been verified. If you are on either, running the
-suite and reporting what you see is a genuinely useful contribution.
+Continuous integration runs the suite on Linux, macOS and Windows, so platform
+differences surface on a pull request rather than in someone's repository. What
+it does not exercise is the dev server: whether an edited route reaches it
+without a restart, and whether an added route triggers exactly one. Running a
+real application on Linux or Windows and reporting what you see is a genuinely
+useful contribution.
 
 ## Pull requests
 
